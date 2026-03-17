@@ -66,6 +66,15 @@
 		return taggedSpans[ 0 ].parentElement;
 	}
 
+	// Underline styles cycle: solid, dotted, dashed for distinct categories.
+	var UNDERLINE_STYLES = [ 'solid', 'dotted', 'dashed' ];
+
+	// Build underline style lookup by category index.
+	var underlineMap = {};
+	for ( var s = 0; s < categories.length; s++ ) {
+		underlineMap[ categories[ s ].slug ] = UNDERLINE_STYLES[ s % UNDERLINE_STYLES.length ];
+	}
+
 	/**
 	 * Convert a hex color to rgba with a given alpha.
 	 */
@@ -191,11 +200,13 @@
 				span.classList.remove( 'il-dimmed', 'il-highlighted' );
 				span.style.removeProperty( '--il-highlight' );
 				span.style.removeProperty( '--il-highlight-solid' );
+				span.style.removeProperty( '--il-underline-style' );
 			} else if ( spanCategory === activeFilter ) {
 				span.classList.remove( 'il-dimmed' );
 				span.classList.add( 'il-highlighted' );
 				span.style.setProperty( '--il-highlight', highlightColor );
 				span.style.setProperty( '--il-highlight-solid', cat.color );
+				span.style.setProperty( '--il-underline-style', underlineMap[ spanCategory ] || 'solid' );
 				if ( isNewSelection ) {
 					matchingSpans.push( span );
 				}
@@ -204,6 +215,7 @@
 				span.classList.remove( 'il-highlighted' );
 				span.style.removeProperty( '--il-highlight' );
 				span.style.removeProperty( '--il-highlight-solid' );
+				span.style.removeProperty( '--il-underline-style' );
 			}
 		}
 

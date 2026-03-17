@@ -98,8 +98,11 @@
 /* Matching spans with category-colored highlight */
 [data-il-category].il-highlighted {
 	background-color: var(--il-highlight);
-	border-bottom: 2px solid var(--il-highlight-solid);
+	color: #1a1a1a;
 	border-radius: 2px;
+	text-decoration: underline var(--il-underline-style, solid) var(--il-highlight-solid);
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
 	box-decoration-break: clone;
 	-webkit-box-decoration-break: clone;
 }
