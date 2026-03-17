@@ -7,7 +7,7 @@ module.exports = {
 		editor: path.resolve( __dirname, 'src/editor.js' ),
 	},
 	output: {
-		path: path.resolve( __dirname, 'assets/js' ),
+		path: path.resolve( __dirname, 'build' ),
 		filename: '[name].js',
 	},
 };

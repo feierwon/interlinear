@@ -1,0 +1,99 @@
+# Copyright (C) 2026 Interlinear
+# This file is distributed under the same license as the Interlinear package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Interlinear\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-03-17 15:50+0000\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../includes/class-frontend.php:89
+msgid "Content filters"
+msgstr ""
+
+#: ../includes/class-frontend.php:93
+msgid "All"
+msgstr ""
+
+#: ../includes/class-frontend.php:107
+msgid "Showing all content."
+msgstr ""
+
+#: ../includes/class-settings.php:28
+msgid "Interlinear Settings"
+msgstr ""
+
+#: ../includes/class-settings.php:29
+msgid "Interlinear"
+msgstr ""
+
+#: ../includes/class-settings.php:63
+msgid "General Settings"
+msgstr ""
+
+#: ../includes/class-settings.php:70
+msgid "Default opacity for dimmed content"
+msgstr ""
+
+#: ../includes/class-settings.php:78
+msgid "Default filter behavior"
+msgstr ""
+
+#: ../includes/class-settings.php:86
+msgid "Reader persistence"
+msgstr ""
+
+#: ../includes/class-settings.php:123
+msgid "Opacity applied to non-matching content when a filter is active (0 = invisible, 1 = fully visible)."
+msgstr ""
+
+#: ../includes/class-settings.php:139
+msgid "Multi-select"
+msgstr ""
+
+#: ../includes/class-settings.php:141
+msgid "Exclusive"
+msgstr ""
+
+#: ../includes/class-settings.php:142
+msgid "Default filter mode for new categories. Can be overridden per category."
+msgstr ""
+
+#: ../includes/class-settings.php:155
+msgid "Enable reader filter persistence sitewide"
+msgstr ""
+
+#: ../includes/class-settings.php:156
+msgid "When enabled, reader filter selections are saved in their browser across visits."
+msgstr ""
+
+#: ../includes/class-settings.php:179
+msgid "Preset Library"
+msgstr ""
+
+#: ../includes/class-settings.php:192
+msgid "No presets saved yet. Create presets from the post editor."
+msgstr ""
+
+#: ../includes/class-settings.php:197
+msgid "Preset Name"
+msgstr ""
+
+#: ../includes/class-settings.php:198
+msgid "Categories"
+msgstr ""
+
+#: ../includes/class-settings.php:199
+msgid "Actions"
+msgstr ""
+
+#: ../includes/class-settings.php:212
+msgid "Delete"
+msgstr ""

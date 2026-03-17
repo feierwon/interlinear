@@ -41,7 +41,7 @@ add_action( 'init', 'interlinear_init' );
  * Enqueue block editor assets.
  */
 function interlinear_enqueue_editor_assets() {
-	$asset_file = INTERLINEAR_PLUGIN_DIR . 'assets/js/editor.asset.php';
+	$asset_file = INTERLINEAR_PLUGIN_DIR . 'build/editor.asset.php';
 	$asset      = file_exists( $asset_file )
 		? require $asset_file
 		: array(
@@ -51,7 +51,7 @@ function interlinear_enqueue_editor_assets() {
 
 	wp_enqueue_script(
 		'interlinear-editor',
-		INTERLINEAR_PLUGIN_URL . 'assets/js/editor.js',
+		INTERLINEAR_PLUGIN_URL . 'build/editor.js',
 		$asset['dependencies'],
 		$asset['version'],
 		false

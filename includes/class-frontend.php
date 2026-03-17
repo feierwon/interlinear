@@ -17,7 +17,6 @@ class Interlinear_Frontend {
 	public static function init() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'maybe_render_sidebar' ) );
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'inject_editor_inline_styles' ) );
 	}
 
 	/**

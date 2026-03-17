@@ -159,6 +159,45 @@ function CategoryPanel() {
 		apiFetch( { path: '/interlinear/v1/presets' } ).then( setPresets ).catch( () => {} );
 	}, [] );
 
+	// Dynamically inject editor styles for tagged spans.
+	useEffect( () => {
+		const styleId = 'interlinear-dynamic-editor-styles';
+		const css = categories.map( ( cat ) => {
+			const hex = cat.color || '#999';
+			return `[data-il-category="${ cat.slug }"] {
+				text-decoration: underline dotted ${ hex };
+				text-decoration-thickness: 2px;
+				text-underline-offset: 3px;
+			}`;
+		} ).join( '\n' );
+
+		function injectInto( doc ) {
+			try {
+				if ( ! doc || ! doc.head ) return;
+				let styleEl = doc.getElementById( styleId );
+				if ( ! styleEl ) {
+					styleEl = doc.createElement( 'style' );
+					styleEl.id = styleId;
+					doc.head.appendChild( styleEl );
+				}
+				styleEl.textContent = css;
+			} catch ( e ) {
+				// Cross-origin or access error — skip.
+			}
+		}
+
+		injectInto( document );
+
+		try {
+			const iframe = document.querySelector( 'iframe[name="editor-canvas"]' );
+			if ( iframe && iframe.contentDocument ) {
+				injectInto( iframe.contentDocument );
+			}
+		} catch ( e ) {
+			// Iframe not accessible.
+		}
+	}, [ categories ] );
+
 	const updateCategories = useCallback(
 		( newCategories ) => {
 			editPost( {

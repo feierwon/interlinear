@@ -15,7 +15,6 @@
 	var postId = data.postId;
 	var categories = data.categories;
 	var persistence = data.persistence;
-	var dimOpacity = data.opacity !== undefined ? data.opacity : 0.35;
 
 	var STORAGE_KEY = 'interlinear_' + postId + '_state';
 
@@ -35,49 +34,125 @@
 		categoryMap[ categories[ i ].slug ] = categories[ i ];
 	}
 
-	// Active filter state: array of slugs.
-	var activeFilters = [];
+	// Active filter: single slug or null.
+	var activeFilter = null;
+	var previousFilter = null;
+
+	// Content area element.
+	var contentArea = null;
+
+	/**
+	 * Find the content container that holds tagged spans.
+	 */
+	function findContentArea() {
+		if ( taggedSpans.length === 0 ) {
+			return null;
+		}
+
+		var el = taggedSpans[ 0 ].parentElement;
+		while ( el && el !== document.body ) {
+			if (
+				el.classList.contains( 'entry-content' ) ||
+				el.classList.contains( 'post-content' ) ||
+				el.classList.contains( 'page-content' ) ||
+				el.classList.contains( 'article-content' ) ||
+				el.tagName === 'ARTICLE'
+			) {
+				return el;
+			}
+			el = el.parentElement;
+		}
+
+		return taggedSpans[ 0 ].parentElement;
+	}
+
+	/**
+	 * Convert a hex color to rgba with a given alpha.
+	 */
+	function hexToRgba( hex, alpha ) {
+		var r = parseInt( hex.slice( 1, 3 ), 16 );
+		var g = parseInt( hex.slice( 3, 5 ), 16 );
+		var b = parseInt( hex.slice( 5, 7 ), 16 );
+		return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+	}
+
+	/**
+	 * Dim block-level children of the content area that don't contain
+	 * highlighted spans. This avoids z-index/stacking issues with overlays.
+	 */
+	function applyContentDimming( show ) {
+		if ( ! contentArea ) {
+			return;
+		}
+
+		if ( show ) {
+			contentArea.classList.add( 'il-content-area--filtering' );
+			var children = contentArea.children;
+			for ( var i = 0; i < children.length; i++ ) {
+				var child = children[ i ];
+				var hasHighlight = child.querySelector( '[data-il-category].il-highlighted' );
+				if ( hasHighlight ) {
+					child.classList.remove( 'il-block-dimmed' );
+				} else {
+					child.classList.add( 'il-block-dimmed' );
+				}
+			}
+		} else {
+			contentArea.classList.remove( 'il-content-area--filtering' );
+			var dimmed = contentArea.querySelectorAll( '.il-block-dimmed' );
+			for ( var j = 0; j < dimmed.length; j++ ) {
+				dimmed[ j ].classList.remove( 'il-block-dimmed' );
+			}
+		}
+	}
 
 	/**
 	 * Read persisted state from localStorage.
 	 */
 	function readState() {
 		if ( ! persistence ) {
-			return [];
+			return null;
 		}
 		try {
 			var stored = localStorage.getItem( STORAGE_KEY );
 			if ( stored ) {
 				var parsed = JSON.parse( stored );
-				if ( Array.isArray( parsed ) ) {
+				if ( typeof parsed === 'string' && categoryMap[ parsed ] ) {
 					return parsed;
 				}
 			}
 		} catch ( e ) {
 			// Silent fail.
 		}
-		return [];
+		return null;
 	}
 
 	/**
 	 * Write state to localStorage.
 	 */
-	function writeState( state ) {
+	function writeState( slug ) {
 		if ( ! persistence ) {
 			return;
 		}
 		try {
-			localStorage.setItem( STORAGE_KEY, JSON.stringify( state ) );
+			if ( slug ) {
+				localStorage.setItem( STORAGE_KEY, JSON.stringify( slug ) );
+			} else {
+				localStorage.removeItem( STORAGE_KEY );
+			}
 		} catch ( e ) {
-			// Silent fail — quota exceeded, etc.
+			// Silent fail.
 		}
 	}
 
 	/**
-	 * Update the DOM to reflect active filters.
+	 * Update the DOM to reflect active filter.
 	 */
 	function applyFilters() {
-		var isAllActive = activeFilters.length === 0;
+		var isAllActive = ! activeFilter;
+		var isNewSelection = activeFilter && activeFilter !== previousFilter;
+		var cat = activeFilter ? categoryMap[ activeFilter ] : null;
+		var highlightColor = cat ? hexToRgba( cat.color, 0.2 ) : '';
 
 		// Update "All" button.
 		allButton.setAttribute( 'aria-pressed', isAllActive ? 'true' : 'false' );
@@ -91,7 +166,7 @@
 		for ( var i = 0; i < filterButtons.length; i++ ) {
 			var btn = filterButtons[ i ];
 			var slug = btn.getAttribute( 'data-il-filter' );
-			var isPressed = activeFilters.indexOf( slug ) !== -1;
+			var isPressed = slug === activeFilter;
 			btn.setAttribute( 'aria-pressed', isPressed ? 'true' : 'false' );
 			if ( isPressed ) {
 				btn.classList.add( 'il-filter--active' );
@@ -100,27 +175,71 @@
 			}
 		}
 
+		// Collect matching spans sorted by document position for sweep animation.
+		var matchingSpans = [];
+
 		// Update tagged spans.
 		for ( var j = 0; j < taggedSpans.length; j++ ) {
 			var span = taggedSpans[ j ];
 			var spanCategory = span.getAttribute( 'data-il-category' );
 
-			if ( isAllActive || activeFilters.indexOf( spanCategory ) !== -1 ) {
-				span.style.opacity = '1';
+			// Clear previous animation state.
+			span.classList.remove( 'il-sweep' );
+			span.style.animationDelay = '';
+
+			if ( isAllActive ) {
+				span.classList.remove( 'il-dimmed', 'il-highlighted' );
+				span.style.removeProperty( '--il-highlight' );
+				span.style.removeProperty( '--il-highlight-solid' );
+			} else if ( spanCategory === activeFilter ) {
 				span.classList.remove( 'il-dimmed' );
 				span.classList.add( 'il-highlighted' );
+				span.style.setProperty( '--il-highlight', highlightColor );
+				span.style.setProperty( '--il-highlight-solid', cat.color );
+				if ( isNewSelection ) {
+					matchingSpans.push( span );
+				}
 			} else {
-				span.style.opacity = String( dimOpacity );
 				span.classList.add( 'il-dimmed' );
 				span.classList.remove( 'il-highlighted' );
+				span.style.removeProperty( '--il-highlight' );
+				span.style.removeProperty( '--il-highlight-solid' );
 			}
 		}
+
+		// Sweep animation: stagger highlights top-to-bottom, left-to-right.
+		if ( matchingSpans.length > 0 ) {
+			matchingSpans.sort( function ( a, b ) {
+				var ar = a.getBoundingClientRect();
+				var br = b.getBoundingClientRect();
+				if ( Math.abs( ar.top - br.top ) > 10 ) {
+					return ar.top - br.top;
+				}
+				return ar.left - br.left;
+			} );
+
+			var totalDuration = Math.min( 1200, matchingSpans.length * 80 );
+			var step = matchingSpans.length > 1 ? totalDuration / ( matchingSpans.length - 1 ) : 0;
+
+			for ( var k = 0; k < matchingSpans.length; k++ ) {
+				( function ( span, delay ) {
+					void span.offsetWidth;
+					span.style.animationDelay = delay + 'ms';
+					span.classList.add( 'il-sweep' );
+				} )( matchingSpans[ k ], Math.round( k * step ) );
+			}
+		}
+
+		// Dim non-matching blocks in the content area.
+		applyContentDimming( ! isAllActive );
 
 		// Announce state.
 		announce( isAllActive );
 
 		// Persist.
-		writeState( activeFilters );
+		writeState( activeFilter );
+
+		previousFilter = activeFilter;
 	}
 
 	/**
@@ -136,52 +255,25 @@
 			return;
 		}
 
-		var labels = [];
-		for ( var i = 0; i < activeFilters.length; i++ ) {
-			var cat = categoryMap[ activeFilters[ i ] ];
-			if ( cat ) {
-				labels.push( cat.label );
-			}
+		var cat = categoryMap[ activeFilter ];
+		if ( cat ) {
+			announcer.textContent = 'Showing: ' + cat.label + '. Other content de-emphasized.';
 		}
-
-		announcer.textContent = 'Showing: ' + labels.join( ', ' ) + '. Other content de-emphasized.';
 	}
 
 	/**
-	 * Toggle a filter.
+	 * Toggle a filter. Single-select: clicking the active one deactivates it,
+	 * clicking a different one swaps to it.
 	 */
 	function toggleFilter( slug ) {
-		var cat = categoryMap[ slug ];
-		if ( ! cat ) {
+		if ( ! categoryMap[ slug ] ) {
 			return;
 		}
 
-		var idx = activeFilters.indexOf( slug );
-		var isCurrentlyActive = idx !== -1;
-
-		if ( cat.mode === 'exclusive' ) {
-			if ( isCurrentlyActive ) {
-				// Deactivate — remove this exclusive filter.
-				activeFilters.splice( idx, 1 );
-			} else {
-				// Deactivate other exclusive categories, keep multi-select ones.
-				var kept = [];
-				for ( var i = 0; i < activeFilters.length; i++ ) {
-					var activeCat = categoryMap[ activeFilters[ i ] ];
-					if ( activeCat && activeCat.mode !== 'exclusive' ) {
-						kept.push( activeFilters[ i ] );
-					}
-				}
-				kept.push( slug );
-				activeFilters = kept;
-			}
+		if ( activeFilter === slug ) {
+			activeFilter = null;
 		} else {
-			// Multi-select: simple toggle.
-			if ( isCurrentlyActive ) {
-				activeFilters.splice( idx, 1 );
-			} else {
-				activeFilters.push( slug );
-			}
+			activeFilter = slug;
 		}
 
 		applyFilters();
@@ -191,7 +283,7 @@
 	 * Reset to "All" state.
 	 */
 	function resetAll() {
-		activeFilters = [];
+		activeFilter = null;
 		applyFilters();
 	}
 
@@ -241,11 +333,15 @@
 	 */
 	function init() {
 		showSidebar();
+		contentArea = findContentArea();
+		if ( contentArea ) {
+			contentArea.classList.add( 'il-content-area--ready' );
+		}
 		enhanceAccessibility();
 		bindEvents();
 
 		// Restore persisted state.
-		activeFilters = readState();
+		activeFilter = readState();
 		applyFilters();
 	}
 
