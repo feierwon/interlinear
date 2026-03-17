@@ -1,0 +1,137 @@
+/**
+ * Interlinear — Editor styles.
+ */
+
+/* Category panel */
+.il-category-panel .il-category-row {
+	margin-block-end: 12px;
+	padding-block-end: 12px;
+	border-block-end: 1px solid #e0e0e0;
+}
+
+.il-category-panel .il-category-row:last-child {
+	border-block-end: none;
+}
+
+.il-category-row__fields {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.il-category-row__fields .components-text-control__input {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+.il-category-row__fields .components-select-control__input {
+	min-inline-size: 80px;
+}
+
+/* Color swatch button */
+.il-color-swatch {
+	inline-size: 28px;
+	block-size: 28px;
+	border-radius: 50%;
+	border: 2px solid #ccc;
+	cursor: pointer;
+	flex-shrink: 0;
+	padding: 0;
+}
+
+.il-color-swatch:hover,
+.il-color-swatch:focus {
+	border-color: #007cba;
+	outline: 2px solid transparent;
+	outline-offset: 2px;
+	box-shadow: 0 0 0 2px #007cba;
+}
+
+/* Color popover */
+.il-color-popover {
+	padding: 12px;
+	min-inline-size: 220px;
+}
+
+.il-color-palette {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 6px;
+	margin-block-end: 12px;
+}
+
+.il-palette-swatch {
+	inline-size: 28px;
+	block-size: 28px;
+	border-radius: 50%;
+	border: 2px solid transparent;
+	cursor: pointer;
+	padding: 0;
+}
+
+.il-palette-swatch:hover,
+.il-palette-swatch:focus {
+	border-color: #007cba;
+}
+
+.il-palette-swatch.is-active {
+	border-color: #1e1e1e;
+	box-shadow: inset 0 0 0 2px #fff;
+}
+
+/* Panel actions */
+.il-category-panel__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-block-start: 12px;
+}
+
+/* Tag popover */
+.il-tag-popover {
+	padding: 8px;
+	min-inline-size: 180px;
+}
+
+.il-tag-option {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	inline-size: 100%;
+	padding: 6px 8px;
+	text-align: start;
+}
+
+.il-tag-option:hover {
+	background: #f0f0f0;
+}
+
+.il-tag-option__swatch {
+	inline-size: 14px;
+	block-size: 14px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.il-tag-option--remove {
+	margin-block-start: 8px;
+	border-block-start: 1px solid #e0e0e0;
+	padding-block-start: 10px;
+}
+
+/* Orphaned tag indicator in editor */
+[data-il-category] {
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Preset list */
+.il-preset-list {
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.il-preset-list .components-button {
+	justify-content: flex-start;
+}

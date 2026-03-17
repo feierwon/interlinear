@@ -1,0 +1,5 @@
+node_modules/
+assets/js/editor.js
+assets/js/editor.asset.php
+.DS_Store
+*.log

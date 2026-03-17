@@ -1,0 +1,16 @@
+{
+	"name": "interlinear",
+	"version": "1.0.0",
+	"description": "Layered content filters for WordPress.",
+	"author": "Feierwon Media LLC",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"lint:js": "wp-scripts lint-js src/",
+		"lint:css": "wp-scripts lint-style assets/css/"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^27.0.0"
+	}
+}
