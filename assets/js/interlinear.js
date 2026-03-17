@@ -197,12 +197,11 @@
 			span.style.animationDelay = '';
 
 			if ( isAllActive ) {
-				span.classList.remove( 'il-dimmed', 'il-highlighted' );
+				span.classList.remove( 'il-highlighted' );
 				span.style.removeProperty( '--il-highlight' );
 				span.style.removeProperty( '--il-highlight-solid' );
 				span.style.removeProperty( '--il-underline-style' );
 			} else if ( spanCategory === activeFilter ) {
-				span.classList.remove( 'il-dimmed' );
 				span.classList.add( 'il-highlighted' );
 				span.style.setProperty( '--il-highlight', highlightColor );
 				span.style.setProperty( '--il-highlight-solid', cat.color );
@@ -211,7 +210,6 @@
 					matchingSpans.push( span );
 				}
 			} else {
-				span.classList.add( 'il-dimmed' );
 				span.classList.remove( 'il-highlighted' );
 				span.style.removeProperty( '--il-highlight' );
 				span.style.removeProperty( '--il-highlight-solid' );

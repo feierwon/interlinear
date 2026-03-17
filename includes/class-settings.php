@@ -44,13 +44,6 @@ class Interlinear_Settings {
 			'show_in_rest'      => true,
 		) );
 
-		register_setting( 'interlinear_settings', 'interlinear_default_mode', array(
-			'type'              => 'string',
-			'sanitize_callback' => array( __CLASS__, 'sanitize_mode' ),
-			'default'           => 'multi',
-			'show_in_rest'      => true,
-		) );
-
 		register_setting( 'interlinear_settings', 'interlinear_persistence', array(
 			'type'              => 'boolean',
 			'sanitize_callback' => 'rest_sanitize_boolean',
@@ -69,14 +62,6 @@ class Interlinear_Settings {
 			'interlinear_default_opacity',
 			__( 'Default opacity for dimmed content', 'interlinear' ),
 			array( __CLASS__, 'render_opacity_field' ),
-			'interlinear',
-			'interlinear_general'
-		);
-
-		add_settings_field(
-			'interlinear_default_mode',
-			__( 'Default filter behavior', 'interlinear' ),
-			array( __CLASS__, 'render_mode_field' ),
 			'interlinear',
 			'interlinear_general'
 		);
@@ -102,16 +87,6 @@ class Interlinear_Settings {
 	}
 
 	/**
-	 * Sanitize mode value.
-	 *
-	 * @param string $value Raw value.
-	 * @return string Validated mode.
-	 */
-	public static function sanitize_mode( $value ) {
-		return in_array( $value, array( 'multi', 'exclusive' ), true ) ? $value : 'multi';
-	}
-
-	/**
 	 * Render opacity field.
 	 */
 	public static function render_opacity_field() {
@@ -121,25 +96,6 @@ class Interlinear_Settings {
 			<p class="description">%s</p>',
 			esc_attr( $value ),
 			esc_html__( 'Opacity applied to non-matching content when a filter is active (0 = invisible, 1 = fully visible).', 'interlinear' )
-		);
-	}
-
-	/**
-	 * Render mode field.
-	 */
-	public static function render_mode_field() {
-		$value = get_option( 'interlinear_default_mode', 'multi' );
-		printf(
-			'<select name="interlinear_default_mode">
-				<option value="multi" %s>%s</option>
-				<option value="exclusive" %s>%s</option>
-			</select>
-			<p class="description">%s</p>',
-			selected( $value, 'multi', false ),
-			esc_html__( 'Multi-select', 'interlinear' ),
-			selected( $value, 'exclusive', false ),
-			esc_html__( 'Exclusive', 'interlinear' ),
-			esc_html__( 'Default filter mode for new categories. Can be overridden per category.', 'interlinear' )
 		);
 	}
 

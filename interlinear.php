@@ -81,7 +81,6 @@ add_action( 'plugins_loaded', 'interlinear_load_textdomain' );
  */
 function interlinear_activate() {
 	add_option( 'interlinear_default_opacity', 0.35 );
-	add_option( 'interlinear_default_mode', 'multi' );
 	add_option( 'interlinear_persistence', true );
 	add_option( 'interlinear_presets', '{}' );
 }

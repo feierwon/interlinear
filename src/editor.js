@@ -5,7 +5,7 @@
  * for managing per-post categories and presets.
  */
 
-import { registerFormatType, toggleFormat, applyFormat, removeFormat } from '@wordpress/rich-text';
+import { registerFormatType, applyFormat, removeFormat } from '@wordpress/rich-text';
 import { RichTextToolbarButton } from '@wordpress/block-editor';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
@@ -15,11 +15,8 @@ import { __ } from '@wordpress/i18n';
 import {
 	Button,
 	TextControl,
-	SelectControl,
-	ColorPicker,
 	Popover,
 	Dropdown,
-	Icon,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -114,16 +111,6 @@ function CategoryRow( { category, index, onChange, onRemove } ) {
 						</Popover>
 					) }
 				</div>
-				<SelectControl
-					label={ __( 'Mode', 'interlinear' ) }
-					value={ category.mode }
-					options={ [
-						{ label: __( 'Multi', 'interlinear' ), value: 'multi' },
-						{ label: __( 'Exclusive', 'interlinear' ), value: 'exclusive' },
-					] }
-					onChange={ ( mode ) => onChange( index, { ...category, mode } ) }
-					hideLabelFromVision
-				/>
 				<Button
 					isDestructive
 					isSmall

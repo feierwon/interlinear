@@ -1,6 +1,6 @@
 <?php
 /**
- * Front-end rendering: sidebar, scripts, styles, and editor inline styles.
+ * Front-end rendering: sidebar, scripts, and styles.
  *
  * @package Interlinear
  */
@@ -110,34 +110,4 @@ class Interlinear_Frontend {
 		echo '</nav>';
 	}
 
-	/**
-	 * Inject inline editor styles for tagged span colors.
-	 */
-	public static function inject_editor_inline_styles() {
-		global $post;
-
-		if ( ! $post ) {
-			return;
-		}
-
-		$categories = Interlinear_Meta::get_categories( $post->ID );
-
-		if ( empty( $categories ) ) {
-			return;
-		}
-
-		$css = '';
-		foreach ( $categories as $cat ) {
-			$hex   = $cat['color'];
-			$alpha = $hex . '26';
-			$css  .= sprintf(
-				'[data-il-category="%s"] { background-color: %s; border-bottom: 2px solid %s; }' . "\n",
-				esc_attr( $cat['slug'] ),
-				$alpha,
-				$hex
-			);
-		}
-
-		wp_add_inline_style( 'interlinear-editor', $css );
-	}
 }
