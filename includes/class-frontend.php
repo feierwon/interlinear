@@ -17,6 +17,20 @@ class Interlinear_Frontend {
 	public static function init() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'maybe_render_sidebar' ) );
+		add_action( 'wp_head', array( __CLASS__, 'output_custom_properties' ), 1 );
+	}
+
+	/**
+	 * Output CSS custom properties on :root.
+	 */
+	public static function output_custom_properties() {
+		$focus = get_option( 'interlinear_focus_color', '#007cba' );
+
+		echo '<style id="interlinear-custom-properties">
+:root {
+	--il-focus: ' . esc_attr( $focus ) . ';
+}
+</style>' . "\n";
 	}
 
 	/**

@@ -41,10 +41,10 @@
 
 .il-color-swatch:hover,
 .il-color-swatch:focus {
-	border-color: #007cba;
+	border-color: var(--il-focus, #007cba);
 	outline: 2px solid transparent;
 	outline-offset: 2px;
-	box-shadow: 0 0 0 2px #007cba;
+	box-shadow: 0 0 0 2px var(--il-focus, #007cba);
 }
 
 /* Color popover */
@@ -71,7 +71,7 @@
 
 .il-palette-swatch:hover,
 .il-palette-swatch:focus {
-	border-color: #007cba;
+	border-color: var(--il-focus, #007cba);
 }
 
 .il-palette-swatch.is-active {

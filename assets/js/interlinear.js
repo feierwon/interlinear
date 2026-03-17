@@ -7,6 +7,54 @@
 ( function () {
 	'use strict';
 
+	// Feierwon Context Bus — shared convention for the Intelligibility Suite.
+	// Any suite plugin can initialize this; first one wins.
+	var bus = window.feierwonContext = window.feierwonContext || {
+		_listeners: {},
+		_state: { contextLevel: null, multilingual: false },
+
+		getState: function () {
+			var copy = {};
+			for ( var key in this._state ) {
+				if ( this._state.hasOwnProperty( key ) ) {
+					copy[ key ] = this._state[ key ];
+				}
+			}
+			return copy;
+		},
+
+		publish: function ( source, partial ) {
+			for ( var key in partial ) {
+				if ( partial.hasOwnProperty( key ) ) {
+					this._state[ key ] = partial[ key ];
+				}
+			}
+			for ( var channel in this._listeners ) {
+				if ( this._listeners.hasOwnProperty( channel ) && partial.hasOwnProperty( channel ) ) {
+					var cbs = this._listeners[ channel ];
+					for ( var i = 0; i < cbs.length; i++ ) {
+						try { cbs[ i ]( partial[ channel ], source ); } catch ( e ) { /* silent */ }
+					}
+				}
+			}
+		},
+
+		subscribe: function ( channel, callback ) {
+			if ( ! this._listeners[ channel ] ) {
+				this._listeners[ channel ] = [];
+			}
+			this._listeners[ channel ].push( callback );
+			var listeners = this._listeners;
+			return function () {
+				var arr = listeners[ channel ];
+				if ( arr ) {
+					var idx = arr.indexOf( callback );
+					if ( idx > -1 ) { arr.splice( idx, 1 ); }
+				}
+			};
+		}
+	};
+
 	var data = window.interlinearData;
 	if ( ! data || ! data.categories || ! data.categories.length ) {
 		return;
@@ -248,6 +296,12 @@
 
 		// Persist.
 		writeState( activeFilter );
+
+		// Publish context level to the Feierwon event bus when the active
+		// filter slug matches a recognized intelligibility tier.
+		var CONTEXT_SLUGS = { standard: true, plain: true, expert: true };
+		var level = activeFilter && CONTEXT_SLUGS[ activeFilter ] ? activeFilter : null;
+		bus.publish( 'interlinear', { contextLevel: level } );
 
 		previousFilter = activeFilter;
 	}
