@@ -4,9 +4,9 @@
 
 /* Category panel */
 .il-category-panel .il-category-row {
-	margin-block-end: 12px;
-	padding-block-end: 12px;
-	border-block-end: 1px solid #e0e0e0;
+	margin-block-end: 0;
+	padding: 6px 0;
+	border-block-end: 1px solid #f0f0f0;
 }
 
 .il-category-panel .il-category-row:last-child {

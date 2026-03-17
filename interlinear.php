@@ -26,6 +26,7 @@ define( 'INTERLINEAR_PLUGIN_FILE', __FILE__ );
 require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-meta.php';
 require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-settings.php';
 require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-frontend.php';
+require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-wizard.php';
 
 /**
  * Initialize plugin components.
@@ -34,6 +35,7 @@ function interlinear_init() {
 	Interlinear_Meta::init();
 	Interlinear_Settings::init();
 	Interlinear_Frontend::init();
+	Interlinear_Wizard::init();
 }
 add_action( 'init', 'interlinear_init' );
 
@@ -65,6 +67,8 @@ function interlinear_enqueue_editor_assets() {
 	);
 
 	wp_set_script_translations( 'interlinear-editor', 'interlinear', INTERLINEAR_PLUGIN_DIR . 'languages' );
+
+	wp_add_inline_style( 'interlinear-editor', Interlinear_Frontend::get_custom_properties_css() );
 }
 add_action( 'enqueue_block_editor_assets', 'interlinear_enqueue_editor_assets' );
 
@@ -80,8 +84,12 @@ add_action( 'plugins_loaded', 'interlinear_load_textdomain' );
  * Plugin activation.
  */
 function interlinear_activate() {
+	add_option( 'interlinear_color_source', 'default' );
+	add_option( 'interlinear_custom_focus_color', '' );
 	add_option( 'interlinear_default_opacity', 0.35 );
 	add_option( 'interlinear_persistence', true );
 	add_option( 'interlinear_presets', '{}' );
+
+	set_transient( 'interlinear_activation_redirect', true, 30 );
 }
 register_activation_hook( __FILE__, 'interlinear_activate' );
