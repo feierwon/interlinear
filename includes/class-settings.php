@@ -37,6 +37,35 @@ class Interlinear_Settings {
 	 * Register plugin settings.
 	 */
 	public static function register_settings() {
+		register_setting( 'interlinear_settings', 'interlinear_color_source', array(
+			'type'              => 'string',
+			'sanitize_callback' => array( __CLASS__, 'sanitize_color_source' ),
+			'default'           => 'default',
+			'show_in_rest'      => true,
+		) );
+
+		register_setting( 'interlinear_settings', 'interlinear_custom_focus_color', array(
+			'type'              => 'string',
+			'sanitize_callback' => array( __CLASS__, 'sanitize_hex_color' ),
+			'default'           => '',
+			'show_in_rest'      => true,
+		) );
+
+		add_settings_section(
+			'interlinear_color',
+			__( 'Color', 'interlinear' ),
+			null,
+			'interlinear'
+		);
+
+		add_settings_field(
+			'interlinear_color_source',
+			__( 'Focus color', 'interlinear' ),
+			array( __CLASS__, 'render_color_field' ),
+			'interlinear',
+			'interlinear_color'
+		);
+
 		register_setting( 'interlinear_settings', 'interlinear_default_opacity', array(
 			'type'              => 'number',
 			'sanitize_callback' => array( __CLASS__, 'sanitize_opacity' ),
@@ -76,6 +105,29 @@ class Interlinear_Settings {
 	}
 
 	/**
+	 * Sanitize color source.
+	 *
+	 * @param string $value Raw value.
+	 * @return string Sanitized source.
+	 */
+	public static function sanitize_color_source( $value ) {
+		return in_array( $value, array( 'theme', 'custom', 'default' ), true ) ? $value : 'default';
+	}
+
+	/**
+	 * Sanitize hex color.
+	 *
+	 * @param string $value Raw value.
+	 * @return string Sanitized hex or empty string.
+	 */
+	public static function sanitize_hex_color( $value ) {
+		if ( preg_match( '/^#[0-9a-f]{6}$/i', $value ) ) {
+			return $value;
+		}
+		return '';
+	}
+
+	/**
 	 * Sanitize opacity value.
 	 *
 	 * @param mixed $value Raw value.
@@ -111,6 +163,87 @@ class Interlinear_Settings {
 			esc_html__( 'Enable reader filter persistence sitewide', 'interlinear' ),
 			esc_html__( 'When enabled, reader filter selections are saved in their browser across visits.', 'interlinear' )
 		);
+	}
+
+	/**
+	 * Render focus color compound field (radio + picker + preview).
+	 */
+	public static function render_color_field() {
+		$source  = get_option( 'interlinear_color_source', 'default' );
+		$custom  = get_option( 'interlinear_custom_focus_color', '' );
+		$default = '#007cba';
+
+		$resolved    = Interlinear_Frontend::resolve_accent_color();
+		$hover       = Interlinear_Frontend::darken_hex( $resolved, 12 );
+		$translucent = Interlinear_Frontend::hex_to_rgba( $resolved, 0.15 );
+
+		$theme_color = Interlinear_Frontend::auto_pick_from_palette();
+		$palette     = Interlinear_Frontend::get_theme_palette();
+		$theme_name  = '';
+		if ( $theme_color && ! empty( $palette ) ) {
+			foreach ( $palette as $entry ) {
+				if ( isset( $entry['color'] ) && strtolower( Interlinear_Frontend::normalize_hex( $entry['color'] ) ) === strtolower( $theme_color ) ) {
+					$theme_name = isset( $entry['name'] ) ? $entry['name'] : '';
+					break;
+				}
+			}
+		}
+
+		$theme_label = $theme_color
+			? sprintf(
+				__( 'Match active theme — %1$s (%2$s)', 'interlinear' ),
+				$theme_name ? $theme_name : __( 'auto-detected', 'interlinear' ),
+				$theme_color
+			)
+			: __( 'Match active theme (no palette detected)', 'interlinear' );
+
+		?>
+		<fieldset>
+			<label>
+				<input type="radio" name="interlinear_color_source" value="theme" <?php checked( $source, 'theme' ); ?> <?php disabled( ! $theme_color ); ?> />
+				<?php echo esc_html( $theme_label ); ?>
+				<?php if ( $theme_color ) : ?>
+					<span style="display:inline-block;width:14px;height:14px;background:<?php echo esc_attr( $theme_color ); ?>;border-radius:3px;vertical-align:middle;margin-left:4px;border:1px solid rgba(0,0,0,.15);"></span>
+				<?php endif; ?>
+			</label><br />
+			<label>
+				<input type="radio" name="interlinear_color_source" value="custom" <?php checked( $source, 'custom' ); ?> />
+				<?php esc_html_e( 'Custom color', 'interlinear' ); ?>
+				<input type="color" name="interlinear_custom_focus_color" value="<?php echo esc_attr( $custom ? $custom : $default ); ?>"
+					id="il-custom-color" style="vertical-align:middle;margin-left:4px;" />
+			</label><br />
+			<label>
+				<input type="radio" name="interlinear_color_source" value="default" <?php checked( $source, 'default' ); ?> />
+				<?php
+				printf(
+					esc_html__( 'Plugin default (%s)', 'interlinear' ),
+					$default
+				);
+				?>
+				<span style="display:inline-block;width:14px;height:14px;background:<?php echo esc_attr( $default ); ?>;border-radius:3px;vertical-align:middle;margin-left:4px;border:1px solid rgba(0,0,0,.15);"></span>
+			</label>
+		</fieldset>
+
+		<div id="il-color-preview" style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+			<span style="display:inline-block;width:32px;height:32px;background:<?php echo esc_attr( $resolved ); ?>;border-radius:4px;border:1px solid rgba(0,0,0,.15);"></span>
+			<span style="display:inline-block;width:32px;height:32px;background:<?php echo esc_attr( $hover ); ?>;border-radius:4px;border:1px solid rgba(0,0,0,.15);"></span>
+			<span style="display:inline-block;width:32px;height:32px;background:<?php echo esc_attr( $translucent ); ?>;border-radius:4px;border:1px solid rgba(0,0,0,.15);"></span>
+			<span class="description"><?php echo esc_html( $resolved ); ?> — focus, hover, translucent</span>
+		</div>
+
+		<script>
+		(function() {
+			var radios = document.querySelectorAll('input[name="interlinear_color_source"]');
+			var picker = document.getElementById('il-custom-color');
+			function toggle() {
+				var val = document.querySelector('input[name="interlinear_color_source"]:checked');
+				picker.disabled = !val || val.value !== 'custom';
+			}
+			radios.forEach(function(r) { r.addEventListener('change', toggle); });
+			toggle();
+		})();
+		</script>
+		<?php
 	}
 
 	/**
