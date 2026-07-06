@@ -27,6 +27,8 @@ require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-meta.php';
 require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-settings.php';
 require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-frontend.php';
 require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-wizard.php';
+require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-license.php';
+require_once INTERLINEAR_PLUGIN_DIR . 'includes/class-updater.php';
 
 /**
  * Initialize plugin components.
@@ -36,6 +38,11 @@ function interlinear_init() {
 	Interlinear_Settings::init();
 	Interlinear_Frontend::init();
 	Interlinear_Wizard::init();
+	// Licensing + updates register hooks that must also fire during WP-Cron
+	// (daily re-validation, background auto-updates), so they init here on
+	// 'init' rather than 'admin_init'.
+	Interlinear_License::init();
+	Interlinear_Updater::init();
 }
 add_action( 'init', 'interlinear_init' );
 
@@ -93,3 +100,14 @@ function interlinear_activate() {
 	set_transient( 'interlinear_activation_redirect', true, 30 );
 }
 register_activation_hook( __FILE__, 'interlinear_activate' );
+
+/**
+ * Plugin deactivation. Clear the scheduled license re-validation event.
+ */
+function interlinear_deactivate() {
+	$timestamp = wp_next_scheduled( Interlinear_License::CRON_HOOK );
+	if ( $timestamp ) {
+		wp_unschedule_event( $timestamp, Interlinear_License::CRON_HOOK );
+	}
+}
+register_deactivation_hook( __FILE__, 'interlinear_deactivate' );

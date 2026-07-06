@@ -267,6 +267,8 @@ class Interlinear_Settings {
 			<hr />
 			<h2><?php esc_html_e( 'Preset Library', 'interlinear' ); ?></h2>
 			<?php self::render_preset_table(); ?>
+
+			<?php Interlinear_License::render_license_section(); ?>
 		</div>
 		<?php
 	}
