@@ -19,13 +19,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Interlinear_License {
 
 	/**
-	 * Lemon Squeezy product ID this license must belong to.
-	 *
-	 * TODO: set this to the Interlinear product ID after creating the Lemon
-	 * Squeezy store. While 0, product verification is skipped (any valid key is
-	 * accepted) so the flow can be exercised before the store exists.
+	 * Lemon Squeezy product ID this license must belong to. Activation rejects
+	 * keys from any other product (see the wrong_product check in handle_activate).
 	 */
-	const PRODUCT_ID = 0;
+	const PRODUCT_ID = 1205864;
 
 	/** Lemon Squeezy License API base (no trailing slash). */
 	const API_BASE = 'https://api.lemonsqueezy.com/v1/licenses';
